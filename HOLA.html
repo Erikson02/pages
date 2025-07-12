@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Un Corazón para Ti (Versión 2)</title>
+<style>
+    /* Estilos generales para el cuerpo de la página */
+    body {
+        height: 100vh; /* Ocupa el 100% de la altura de la ventana */
+        background: #000; /* Fondo negro profundo */
+        margin: 0; /* Elimina el margen predeterminado del cuerpo */
+        display: flex; /* Usa flexbox para centrar el contenido */
+        justify-content: center; /* Centra horizontalmente */
+        align-items: center; /* Centra verticalmente */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente legible */
+        overflow: hidden; /* Evita barras de desplazamiento */
+        position: relative; /* Para posicionar elementos absolutamente dentro */
+    }
+
+    /* Contenedor del corazón para su animación y posicionamiento */
+    .heart-container {
+        position: relative; /* Permite posicionar el corazón y el mensaje */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 250px; /* Ancho del contenedor */
+        height: 250px; /* Alto del contenedor */
+    }
+
+    /* Estilos del corazón */
+    .heart {
+        width: 150px;
+        height: 150px;
+        position: relative;
+        cursor: pointer; /* Cambia el cursor para indicar que es clickeable */
+        background: #e74c3c; /* Rojo pasión */
+        transform: rotate(-45deg); /* Gira para formar la forma de corazón */
+        box-shadow: 0 0 40px rgba(231, 76, 60, 0.8), 0 0 20px rgba(231, 76, 60, 0.6); /* Efecto de neón */
+        animation: beat 1.4s infinite ease-in-out; /* Animación de latido */
+        border-radius: 20px; /* Leve redondeo en las esquinas */
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Transición suave al pasar el ratón */
+    }
+
+    /* Pseudo-elementos para las partes superiores del corazón */
+    .heart::before,
+    .heart::after {
+        content: "";
+        width: 150px;
+        height: 150px;
+        position: absolute;
+        background: #e74c3c; /* Mismo color que el corazón */
+        border-radius: 50%; /* Forma circular */
+        box-shadow: inherit; /* Hereda la sombra del corazón */
+    }
+
+    .heart::before {
+        top: -75px; /* Posiciona la parte superior izquierda */
+        left: 0;
+    }
+
+    .heart::after {
+        top: 0;
+        left: 75px; /* Posiciona la parte superior derecha */
+    }
+
+    /* Animación de latido del corazón */
+    @keyframes beat {
+        0%, 100% { transform: rotate(-45deg) scale(1); }
+        25% { transform: rotate(-45deg) scale(1.08); }
+        50% { transform: rotate(-45deg) scale(1); }
+        75% { transform: rotate(-45deg) scale(1.08); }
+    }
+
+    /* Efecto al pasar el ratón sobre el corazón */
+    .heart:hover {
+        transform: rotate(-45deg) scale(1.15); /* Aumenta el tamaño al pasar el ratón */
+        animation-play-state: paused; /* Pausa la animación de latido */
+    }
+
+    /* Estilos para la tarjeta del mensaje */
+    .message-card {
+        position: absolute;
+        padding: 25px 35px;
+        background: rgba(20, 20, 20, 0.85); /* Fondo oscuro semitransparente */
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px); /* Efecto de desenfoque detrás del mensaje */
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        text-align: center;
+        color: #fff; /* Texto blanco */
+        font-size: 1.3em; /* Tamaño de fuente más grande */
+        font-style: italic;
+        z-index: 10; /* Asegura que esté por encima del corazón */
+        opacity: 0; /* Inicialmente invisible */
+        visibility: hidden; /* Oculto para accesibilidad */
+        /* Transición para el efecto de aparición y desvanecimiento */
+        transition: opacity 1.2s ease-in-out, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 1.2s;
+        max-width: 350px; /* Ancho máximo para el mensaje */
+        transform: translate(-50%, -50%) scale(0.8); /* Posición inicial y escala reducida */
+        top: 50%;
+        left: 50%;
+    }
+
+    /* Clase para mostrar el mensaje */
+    .message-card.show {
+        opacity: 1; /* Hace el mensaje visible */
+        visibility: visible;
+        transform: translate(-50%, -50%) scale(1); /* Vuelve a la escala normal */
+    }
+</style>
+</head>
+<body>
+
+<div class="heart-container">
+    <div class="heart" id="heart"></div>
+    <div class="message-card" id="messageCard">
+        <!-- La frase se insertará aquí con JavaScript -->
+    </div>
+</div>
+
+<script>
+    const heart = document.getElementById('heart');
+    const messageCard = document.getElementById('messageCard');
+    let messageTimeoutId; // Para almacenar el ID del temporizador y poder cancelarlo
+
+    // --- Frases románticas y para conquistar (¡más opciones!) ---
+    const frasesParaConquistar = [
+        "Tu sonrisa es la luz que ilumina mi día.",
+        "Contigo, cada momento se convierte en un recuerdo inolvidable.",
+        "Eres la melodía más hermosa que ha sonado en mi corazón.",
+        "No sabía lo que era el amor hasta que te conocí.",
+        "Cada vez que te veo, me enamoro un poco más.",
+        "Mi lugar favorito en el mundo es a tu lado.",
+        "Eres mi sueño hecho realidad, mi cuento de hadas personal.",
+        "Tu voz es mi canción favorita, tus ojos mi paisaje preferido.",
+        "Si la belleza fuera tiempo, serías la eternidad.",
+        "Eres el 'para siempre' que siempre busqué.",
+        "Mi corazón te eligió y mi alma te encontró.",
+        "En tus ojos encuentro mi universo entero.",
+        "Estar contigo es como volver a casa.",
+        "Eres la razón por la que creo en el amor a primera vista.",
+        "Cada latido de mi corazón susurra tu nombre.",
+        "Contigo, la vida es una aventura maravillosa.",
+        "No hay distancia que opaque lo que siento por ti.",
+        "Eres mi sol en los días grises y mi estrella en la noche.",
+        "Gracias por ser la persona más hermosa que he conocido.",
+        "Mi amor por ti es un viaje que no quiero que termine."
+    ];
+
+    heart.addEventListener('click', () => {
+        // Si hay un mensaje visible, lo ocultamos inmediatamente y limpiamos el temporizador
+        if (messageCard.classList.contains('show')) {
+            clearTimeout(messageTimeoutId); // Cancela el temporizador actual
+            messageCard.classList.remove('show');
+            // Espera un poco para que la transición de ocultar termine antes de mostrar uno nuevo
+            setTimeout(() => showNewMessage(), 500); 
+        } else {
+            showNewMessage();
+        }
+    });
+
+    function showNewMessage() {
+        const randomIndex = Math.floor(Math.random() * frasesParaConquistar.length);
+        const frase = frasesParaConquistar[randomIndex];
+        
+        messageCard.textContent = frase;
+        messageCard.classList.add('show');
+
+        // El mensaje permanece visible por 8 segundos (8000ms) antes de empezar a desvanecerse
+        messageTimeoutId = setTimeout(() => {
+            messageCard.classList.remove('show'); // Inicia el desvanecimiento
+        }, 8000); // Duración que el mensaje está completamente visible
+    }
+</script>
+
+</body>
+</html>
